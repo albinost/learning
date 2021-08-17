@@ -8,15 +8,16 @@ https://ropsten.etherscan.io/address/0xc7e3db479035dedE12Cc6A3DB25A5617F76E89Cd#
 Как понимаю, цель задания - защита контракта от многочисленных(зачастую ненужных,избыточных) итераций цикла.
 Поэтому ввела ограничение на количество резюме и работу контракта(5 лет). Работа контракта сказывается только
 на добавление новых резюме. Остальной функционал будет продолжать работать. 
-* maxIterForWhile() (62 стр) - функция для определения на данный момент числа итераций 
-функции updateResumeForMany() (73 стр), которая содержит 2 while
-* в функции hire() (91 стр) цикл for => ввела ограничение на количество элементов вводимого массива(<20)
+* maxIterForWhile() (63 стр) - функция для определения на данный момент числа итераций 
+функции updateResumeForMany() (74 стр), которая содержит 2 while
+* в функции hire() (92 стр) цикл for => ввела ограничение на количество элементов вводимого массива(<20)
 */
 
 pragma solidity ^0.8.4;
 
 contract Resumes {
     uint8 constant x = 5;
+    uint16 constant year = 365;
     uint32 public maxRes;                  //+максимальное количество резюме,можно менять
     uint256 start;   //+когда начал действовать контракт (к примеру по времени будет действовать 5 лет)
     address owner;
@@ -43,7 +44,7 @@ contract Resumes {
         _; 
     } 
     modifier checkMaxResAndDay() {         
-        require(res.length + 1 <= maxRes && start + x*365 days > block.timestamp,
+        require(res.length + 1 <= maxRes && start + x*year*1 days > block.timestamp,
         "Limit of resumes has been exceeded or contract time is overdue."); 
         _; 
     } 
@@ -62,7 +63,7 @@ contract Resumes {
     function maxIterForWhile() public view returns(uint32 max1while, uint32 max2while) { 
         uint32 max2 = 0;                                   
         for(uint i = 1; i < 6; i++){
-            if (start < block.timestamp - i*365 days)
+            if (start < block.timestamp - i*year*1 days)
                 max2 = uint32(i);
             else
                 return(uint32(res.length), max2); 
@@ -78,7 +79,7 @@ contract Resumes {
                continue;
            }
             uint8 j = 1;
-            while(res[uint256(n)].time < block.timestamp  - j*365 days) {
+            while(res[uint256(n)].time < block.timestamp  - j*year*1 days) {
                 res[uint256(n)].experience += 1;
                 j++;
             }      

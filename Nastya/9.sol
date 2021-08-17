@@ -53,8 +53,11 @@ contract Euclidean {                        //представлены 2 вер�
                      revert("Inappropriate numbers for this algorithm");
              }
         }
-        (,uint256 v3) = v1.add(v2);            //добавила return в функцию библиотеки
-        return (Address.sendValue(payable(msg.sender),v3));     //НОД двух чисел отправляется вызывающему функцию контракту
+        (flag, v1) = v1.add(v2);
+        if (flag == true)           
+            return (Address.sendValue(payable(msg.sender),v1));     //НОД двух чисел отправляется вызывающему функцию контракту
+        else
+            return false;
     }
     
     //конец 9 задачи на этом контракте
