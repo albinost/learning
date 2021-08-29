@@ -1,4 +1,4 @@
-Область видимости функций и переменных.
+/* Область видимости функций и переменных.
 
 Написать контракт и подсчитать расход газа при работе с функциями и переменными,
 с разной областью видимости и одной логикой работы.
@@ -15,60 +15,88 @@
 при выполнении одного арифметического действия).
 
 Про функции:
-  Если внешне вызываем функцию, то самая затратная функция с external типом 
-(при одной логике работы, что дано по условию, разница с public очень маленькая)
-  Если же вызываем функцию изнутри (в самом контракте), то самая затратная internal.
-Далее в сторону уменьшения затратности идет public, private.
+  Если внешне вызываем функцию, то самая затратная функция с public типом 
+  Если же вызываем функцию изнутри (в самом контракте), то самая затратная private.
+Далее в сторону уменьшения затратности идет internal, public.
 
-https://ropsten.etherscan.io/address/0x29131156C7aB36c1b55d03df2Ea6bAe92415716A#code
+Контракты:
+VariablesEstimation: https://ropsten.etherscan.io/address/0xb68648634b06e9e4a6578C058D8f95954764bA3A#code
+InsideCalls: https://ropsten.etherscan.io/address/0xf49354A1880874B88bDD671c4bE88DE458Dcce6b#code
+OutsideCalls: https://ropsten.etherscan.io/address/0x4F7f72e27E8D4Cb0ca257AFCc0e8c4141F6356f7#code
+*/
 
 pragma solidity ^0.8.6;
 
-contract Estimation {                        
-    uint256 public var1 = 10;           
-    uint256 internal var2 = 10;
-    uint256 private var3 = 10;
-    uint256 public var4 = 1;
+contract VariablesEstimation {  
+    //исследование газа при разной видимости переменных                      
+    uint256 public var1;           
+    uint256 internal var2;
+    uint256 private var3;
     
-    //исследование газа при разной видимости переменных
-    function addToVar1() public {    
-        var1 += 1;
+    function addToVar1() public { 
+        for (uint i=0; i<30; i++)
+            var1 += 1;
     }
     
-    function addToVar2() public { 
-        var2 += 1;
+    function addToVar2() public {
+        for (uint i=0; i<30; i++)
+            var2 += 1;
     }
     
-    function addToVar3() public { 
-        var3 += 1;
+    function addToVar3() public {
+        for (uint i=0; i<30; i++)
+            var3 += 1;
     }
+}
+
+
+contract OutsideCalls {
+    //исследование газа при вызовах снаружи
+    uint256 public var1;  
+    uint256 public var2;
     
-    //исследование газа при разной видимости функций
-    function firstType() public {    
-        var4 += 1;
+    function firstType() public {
+        for (uint i=0; i<40; i++)
+            var1 += 1;
     }
     
     function secondType() external { 
-        var4 += 1;
+        for (uint i=0; i<40; i++)
+            var2 += 1;
+    }
+}
+
+
+contract InsideCalls {
+     //исследование газа при вызовах внутри контракта
+    uint256 public var1; 
+    uint256 public var2; 
+    uint256 public var3; 
+        
+    function firstType() public {
+        for (uint i=0; i<80; i++)
+            var1 += 1;
     }
     
-    function thirdType() internal { 
-        var4 += 1;
+    function secondType() internal { 
+        for (uint i=0; i<80; i++)
+            var2 += 1;
     }
     
-    function fourthType() private { 
-        var4 += 1;
+    function thirdType() private { 
+        for (uint i=0; i<80; i++)
+            var3 += 1;
     }
     
-    function firstCalling() public {    ///вызов public
+     function firstCall() public {    
         firstType();
     }
 
-    function thirdCalling() public {    ///вызов internal
-        thirdType();
+    function secondCall() public {    
+        secondType();
     }
 
-    function fourthCalling() public {   ///вызов private
-        fourthType();
+    function thirdCall() public {   
+        thirdType();
     }
 }

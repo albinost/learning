@@ -66,7 +66,7 @@ contract Vote is Ownable {
 }
 
 
-interface VoteInterface {
+interface IVoteInterface {
     function getForm(address id) external view returns (uint16, bool, bool);
     function getAlreadyVoted() external view returns (address[] memory);
     function howMuchVoted() external view returns (uint256);
@@ -74,14 +74,14 @@ interface VoteInterface {
 
 
 contract ProcessVotes is Ownable {
-    VoteInterface voteContract;
+    IVoteInterface voteContract;
 
     constructor(address _owner) {
         owner = _owner;
     }
 
     function setVoteContract(address _address) external onlyOwner {  //для записи нового адреса контракта Vote
-        voteContract = VoteInterface(_address);                      
+        voteContract = IVoteInterface(_address);                      
     }
 
     function getVoted() public view returns (address[] memory) {

@@ -1,10 +1,11 @@
-Вызовы функций между контрактами.
+/* Вызовы функций между контрактами.
 Отличия между Call, StaticCall и DelegateCall.
 Прописать комментариями отличия и особенности.
 
 Контракты:
 А: https://ropsten.etherscan.io/address/0xFb83b9B058670D6980EF4A99F999A3976efBE57A#code
 B: https://ropsten.etherscan.io/address/0x37574Cc4974d1D4677C5B9013bf08ef5D39b25FD#code
+*/
 
 pragma solidity ^0.8.6;
 

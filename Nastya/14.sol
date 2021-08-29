@@ -1,4 +1,4 @@
-Изучить Reentrancy атаки, DAO Hack.
+/* Изучить Reentrancy атаки, DAO Hack.
 Кратко комментарием прописать основной смысл атаки и способ ее реализации.
 Написать контракты, реализующие эту уязвимость. 
 
@@ -13,7 +13,7 @@
 
 Charity - https://ropsten.etherscan.io/address/0x7882dB4baBF0d88b9C7A5dB130F3b4CC58C49B40#code
 Hacker - https://ropsten.etherscan.io/address/0xDFB61CbA7953E2Ce1fDF3f014b54222D7df57b0C#code
-
+*/
 
 pragma solidity ^0.8.6;
 
@@ -27,7 +27,7 @@ contract Charity {
     function getEther() external {  
         if (!caller[msg.sender]) {   
             (bool success, ) = payable(msg.sender).call{value: 2 ether}("");  
-            require(success, "Failed to transfer 1 Ether");
+            require(success, "Failed to transfer 2 Ether");
         }
         caller[msg.sender] = true;
     }
@@ -47,7 +47,7 @@ contract Hacker {
 
     constructor(address payable _victim) {
         victim = Charity(_victim);
-        owner = payable(msg.sender);
+        owner = payable(msg.sender);     //без "payable" TypeError
     }
 
     receive() external payable {
@@ -72,34 +72,26 @@ contract Hacker {
     }
 }
 
-
+/*
 Методы защиты контракта Charity:
 
-1.1 Лучше всего изменять важные переменные до функций call,send,transfer.
-  Однако если есть transfer/send, то функция getEther() не сможет вызываться рекурсивно, 
-  т.к. на transfer/send выделяется мало газа. 
+1.1 Лучше всего изменять важные переменные до функций call, send, transfer.
   function getEther() external {  
       require(!caller[msg.sender],"Sorry, we can't transfer you another 2 ether.");
       caller[msg.sender] = true;
       payable(msg.sender).transfer(2 ether);  
   }
 
-  function getEther() external {  
-      require(!caller[msg.sender],"Sorry, we can't transfer you another 2 ether.");
-      payable(msg.sender).transfer(2 ether);
-      caller[msg.sender] = true;
-  }
-
-2. С помощью изменения переменной до call. Или же можно сделать call с контролем газа 
-                                                         как у transfer/send.
+2. Можно сделать call с контролем газа.                                                  
   modifier limitReceive() {
       require(!caller[msg.sender],"Sorry, we can't transfer you another 2 ether.");
       _;
   }
-  function getEther() external limitReceive {  
-      caller[msg.sender] = true;
-      (bool success, ) = payable(msg.sender).call{value: 2 ether}("");  
-      require(success,"Failed to transfer 1 Ether"); 
+
+  function getEther() external limitReceive {        
+      (bool success, ) = payable(msg.sender).call{value: 2 ether, gas: 3000}("");   
+      require(success,"Failed to transfer 2 Ether");  
+      caller[msg.sender] = true; 
   }
 
 3. С универсальным модификатором из библиотеки.
@@ -109,9 +101,10 @@ contract Charity is ReentrancyGuard {
     function getEther() external nonReentrant {  
         if (!caller[msg.sender]){
             (bool success, ) = payable(msg.sender).call{value: 2 ether}("");
-            require(success,"Failed to transfer 1 Ether");
+            require(success,"Failed to transfer 2 Ether");
         }
         caller[msg.sender] = true;
     }
  ...
 }   
+*/

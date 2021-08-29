@@ -9,6 +9,8 @@ https://ropsten.etherscan.io/address/0x95f781DE4fC59E6Ae4572999B1f6bA49c8746119#
   НОД чисел отправляется вызывающему функцию контракту с помощью sendValue()
 
 */
+
+
 pragma solidity ^0.8.6;
 
 import {Address} from "./Address.sol";
@@ -17,6 +19,9 @@ import {SimpleMath} from "./math.sol";
 
 contract Euclidean {                        //представлены 2 версии алгоритма Евклида
     using SimpleMath for uint256;
+    using Address for address; 
+    using Address for address payable; 
+    
     uint256 public var1;           
     uint256 public var2;
 
@@ -29,7 +34,7 @@ contract Euclidean {                        //представлены 2 вер�
     //в первом случае из конструктора доступ к firstVersion() не получит контракт
     //во втором же случае получит
     modifier onlyForContracts() {
-        require(Address.isContract(msg.sender) == true,
+        require(msg.sender.isContract() == true,
         "This function can be accessed only from existing contract");
         //require(msg.sender !=tx.origin);       // как аналог, tx.origin - всегда externally-owned account 
         _; 
@@ -54,8 +59,8 @@ contract Euclidean {                        //представлены 2 вер�
              }
         }
         (flag, v1) = v1.add(v2);
-        if (flag == true)           
-            return (Address.sendValue(payable(msg.sender),v1));     //НОД двух чисел отправляется вызывающему функцию контракту
+        if (flag == true) 
+            return payable(msg.sender).sendValue(v1);     //НОД двух чисел отправляется вызывающему функцию контракту
         else
             return false;
     }
@@ -92,15 +97,15 @@ contract Euclidean {                        //представлены 2 вер�
 
 //пример контракта вызывающего функцию firstVersion()
 contract User {
-    Euclidean con;
+    Euclidean _contract;
     bool public success;
     
     receive() external payable {    //fallback функция, без нее контракт не получит денег из первой фунции контракта     
     }
     
-    function callFirstVersion(address _con) public returns(bool) {    //вызывает функцию firstVersion()
-        con = Euclidean(_con);
-        success = con.firstVersion();
+    function callFirstVersion(address contract_) public returns(bool) {    //вызывает функцию firstVersion()
+        _contract = Euclidean(contract_);
+        success = _contract.firstVersion();
         return success;
     }
     

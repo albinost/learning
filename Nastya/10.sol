@@ -184,7 +184,7 @@ contract Resumes {
     }          //для красивого вывода без кортежа;если такого элемента нет revert автоматом
                                                                  //выдает исключение
 
-    function setToDeafultResume(uint32 element) public  onlyOwner onlyPosAndExisting(element) {
+    function resetToDeafultResume(uint32 element) public  onlyOwner onlyPosAndExisting(element) {
        delete  res[element];      
     }
                         

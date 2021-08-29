@@ -1,4 +1,4 @@
-Изучить и применить msg.sender и tx.origin.
+/* Изучить и применить msg.sender и tx.origin.
 Дать подробный комментарий (свой текст, не копипаст), что это и для чего используется.
 ---
 msg.sender - адрес вызывающий транзакцию
@@ -25,6 +25,7 @@ msg.sender же постоянно изменяется в зависимост�
 A: https://ropsten.etherscan.io/address/0x90cFe64aac88F1aA92CA298a50e1D77b8065E252#code
 B: https://ropsten.etherscan.io/address/0x5FE72DF8697d1E89C300cc807FAeaE9080076dac#code
 C: https://ropsten.etherscan.io/address/0x28f706F5560eE9c6e45e23E603c04568757f31f9#code
+*/
 
 pragma solidity ^0.8.6;
 

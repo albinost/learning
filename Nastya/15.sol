@@ -1,15 +1,23 @@
-Выполнение конструкторов сразу в нескольких контрактах. 
+/* Выполнение конструкторов сразу в нескольких контрактах. 
 Написать пример, когда при установке главного контракта в связанном контракте 
 выполняется конструктор с параметрами из главного контракта.
 
-Main - https://ropsten.etherscan.io/address/0xc6146282B6312e77924aF54088dA6BEEBdc9f36b#code
-Secondary - https://ropsten.etherscan.io/address/0x5b5FB09769431aB58007d5deB7B67F305Cd9669F#code
+https://ropsten.etherscan.io/address/0x062caDA1950bA64A8d911351DE965f340dDBF08F#code
+*/
 
 pragma solidity ^0.8.6;
 
-contract Modifiers {
+contract Modifier1 {
     address internal owner;
     address public admin;
+    uint16 public contractsNumber; 
+    //адреса будут по умолчанию, тк конструктор выполняется до главного
+    event SecondConstructor(uint16 indexed contractsNumber, address owner, address admin);
+    
+    constructor(uint16 _contractsNumber) { 
+        contractsNumber = _contractsNumber;
+        emit SecondConstructor(contractsNumber, owner, admin);
+    }
 
     modifier onlyOwner {
         require(msg.sender == owner, "You aren't allowed to call this function.");
@@ -27,34 +35,29 @@ contract Modifiers {
     }
 }
 
-contract Main is Modifiers {
-    uint16 public connectedContracts;  //сколько контрактов создано от Main и как номер 
-                                       //созданного контракта в event'e
-    event SecondaryCreated(uint16 indexed connectedContracts, address connectedContract);
-    
-    constructor(address _admin) {
-        owner = msg.sender;
-        admin = _admin;
-        connectedContracts = 0;
-        generate();
-    }
 
-    //создает Secondary контракты и выпускает событие 
-    function generate() public onlyOwnerOrAdmin {
-        connectedContracts += 1;
-        Secondary secondary = new Secondary(msg.sender, admin, connectedContracts);
-        emit SecondaryCreated(connectedContracts, address(secondary)); 
+contract Modifier2 {
+    event FirstConstructor(uint8 executedConstructors);
+    
+    constructor(uint8 _executedConstructors) {
+        emit FirstConstructor(_executedConstructors);
     }
 }
 
-contract Secondary is Modifiers {
-    uint16 public number;
-    mapping(address => uint256) private insuranceCost;
 
-    constructor(address _owner, address _admin, uint16 num) {
+//Конструкторы выполняются в следующей последовательности: Modifier2, Modifier1, Complex.
+//реализовала 2 способа вызова конструктора связанных контрактов
+contract Complex is Modifier2(1), Modifier1 {
+    mapping(address => uint256) private insuranceCost;
+    event ThirdConstructor(uint16 indexed contractsNumber, address owner, address admin);
+
+    constructor(address _owner, address _admin, uint16 numberOfPreviousContracts) 
+        Modifier1 (numberOfPreviousContracts + 2) 
+    {
         owner = _owner;
         admin = _admin;
-        number = num;
+        contractsNumber += 1;     
+        emit ThirdConstructor(contractsNumber, owner, admin);
     }
 
     function addInsuranceToDatabase(address client, uint256 cost) public onlyOwnerOrAdmin {
